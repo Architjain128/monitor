@@ -1,199 +1,137 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:http/http.dart' as http;
-
 import 'package:flutter/material.dart';
+import 'package:montior/databaseRequests.dart';
+import "form.dart";
+import 'list.dart';
+import 'graph.dart';
 
-void main() => runApp(MyApp());
+final String appUserId = "0";
+
+void main() {
+  return runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Archit App',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Wikipedia search API'),
+      home: MyMainPage(),
+    );
+  }
+}
+
+class MyMainPage extends StatefulWidget {
+  MyMainPage({Key? key}) : super(key: key);
+
+  @override
+  MyMainPageState createState() => MyMainPageState();
+}
+
+class MyMainPageState extends State<MyMainPage> {
+  int couter = 0;
+  void update() {
+    setState(() {
+      couter = couter + 1;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: fetchUserData(appUserId),
+      builder: (context, snapshot) {
+        // print(snapshot.data);
+        if (snapshot.connectionState == ConnectionState.done) {
+          var tmp = snapshot.data.toString();
+          var decodedResponse = json.decode(tmp);
+
+          var userName = decodedResponse["username"];
+          var response = decodedResponse["bpdata"];
+
+          Map<String, dynamic> temp = decodedResponse["bpdata"];
+          temp.removeWhere((key, value) => key == "-1");
+
+          Map<String, dynamic>? asc = Map.fromEntries(temp.entries.toList()
+            ..sort((e1, e2) => e1.key.compareTo(e2.key)));
+          Map<String, dynamic>? des = Map.fromEntries(temp.entries.toList()
+            ..sort((e1, e2) => e2.key.compareTo(e1.key)));
+          Entry entry;
+          if (des.isEmpty) {
+            entry = Entry("____-__-__ __:__", "__", "__");
+          } else {
+            var idx = des.keys.toList().first;
+            entry = Entry(temp[idx]["date"].toString(),
+                temp[idx]["sys"].toString(), temp[idx]["dia"].toString());
+          }
+          UserData _data = UserData(appUserId, userName, asc, des, entry);
+          return MyHomePage(data: _data, count: update);
+        } else {
+          return Center(child: CircularProgressIndicator());
+        }
+      },
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  final String title;
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
+  final UserData data;
+  Function count;
+  MyHomePage({Key? key, required this.data, required this.count})
+      : super(key: key);
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final searchTextController = TextEditingController();
-  List<WikiSearchEntity> searchList = [];
-
-  void _search() {
-    String str = searchTextController.text;
-    RequestService.query(str).then((WikiSearchResponse? response) {
-      setState(() {
-        searchList = response!.query.search;
-      });
-    });
-  }
-
-  @override
-  void dispose() {
-    searchTextController.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Container(
-        child: Padding(
-          padding: EdgeInsets.all(10),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: searchTextController,
-                        obscureText: false,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: 'TextField',
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Container(
-                      height: 60,
-                      child: OutlinedButton(
-                        onPressed: _search,
-                        child: Text("Search"),
-                      ),
-                    ),
-                  ]
+    // UserData _data = widget.data;
+    return DefaultTabController(
+      length: 3,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Blood Pressure Monitor'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.settings),
+              tooltip: 'Settings',
+              onPressed: () {
+                ScaffoldMessenger.of(context)
+                    .showSnackBar(const SnackBar(content: Text('Setting')));
+              },
+            ),
+          ],
+          bottom: TabBar(
+            tabs: <Widget>[
+              Tab(
+                icon: Icon(Icons.home),
               ),
-              SizedBox(
-                height: 10,
+              Tab(
+                icon: Icon(Icons.auto_graph),
               ),
-              Expanded(child:
-                SingleChildScrollView(
-                child: ListView.builder(
-                  primary: false,
-                  itemBuilder: (BuildContext context,
-                      int index) => new WikiSearchItemWidget(searchList[index]),
-                  itemCount: searchList.length,
-                  shrinkWrap: true,
-                ),
-              ),
+              Tab(
+                icon: Icon(Icons.list),
               ),
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class WikiSearchItemWidget extends StatelessWidget {
-  final WikiSearchEntity _entity;
-
-  WikiSearchItemWidget(this._entity);
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(_entity.title,
-        style: TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.w700,
+        body: TabBarView(
+          children: <Widget>[
+            MyCustomForm(data: widget.data, count: widget.count),
+            MyChart(data: widget.data),
+            MyList(data: widget.data),
+          ],
         ),
       ),
-      subtitle: SingleChildScrollView(
-        child: Html(data: _entity.snippet),
-      ),
-      onTap: () {
-
-      },
     );
   }
-}
-
-class RequestService {
-  static Future<WikiSearchResponse?> query(String search) async {
-    var response = await http.get(
-        Uri.parse("https://en.wikipedia.org/w/api.php?action=query&origin=*&list=search&srsearch=$search&format=json")
-    );
-    // Check if response is success
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      var map = json.decode(response.body);
-      return WikiSearchResponse.fromJson(map);
-    } else {
-      print("Query failed: ${response.body} (${response.statusCode})");
-      return null;
-    }
-  }
-}
-
-class WikiSearchResponse {
-  String batchComplete;
-  WikiQueryResponse query;
-  WikiSearchResponse({required this.batchComplete, required this.query});
-
-  factory WikiSearchResponse.fromJson(Map<String, dynamic> json) => WikiSearchResponse(
-      batchComplete: json["batchcomplete"],
-      query: WikiQueryResponse.fromJson(json["query"])
-  );
-}
-
-class WikiQueryResponse {
-  List<WikiSearchEntity> search;
-
-  WikiQueryResponse({required this.search});
-
-  factory WikiQueryResponse.fromJson(Map<String, dynamic> json) {
-    List<dynamic> resultList = json['search'];
-    List<WikiSearchEntity> search = resultList.map((dynamic value) =>
-        WikiSearchEntity.fromJson(value))
-        .toList(growable: false);
-    return WikiQueryResponse(
-        search: search
-    );
-  }
-}
-
-class WikiSearchEntity {
-  int ns;
-  String title;
-  int pageId;
-  int size;
-  int wordCount;
-  String snippet;
-  String timestamp;
-  WikiSearchEntity({required this.ns, required this.title,
-    required this.pageId, required this.size, required this.wordCount,
-    required this.snippet, required this.timestamp});
-
-  factory WikiSearchEntity.fromJson(Map<String, dynamic> json) => WikiSearchEntity(
-    ns: json["ns"],
-    title: json["title"],
-    pageId: json["pageid"],
-    size: json["size"],
-    wordCount: json["wordcount"],
-    snippet: json["snippet"],
-    timestamp: json["timestamp"]
-  );
 }
