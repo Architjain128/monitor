@@ -7,11 +7,12 @@ import 'form.dart';
 var baseURL = "health-8a33d-default-rtdb.asia-southeast1.firebasedatabase.app";
 
 String? datestamp(String? date) {
-  date = date!.replaceAll(" ", "");
-  date = date.replaceAll("-", "");
-  date = date.replaceAll(":", "");
-  date = date.replaceAll(".", "");
-  return date;
+  String newDate = date!.split(" ")[0].replaceAll("-", "");
+  date = date.split(" ")[1];
+  List<String> dd = date.split(":");
+  newDate += dd[0] + dd[1];
+  print(newDate);
+  return newDate;
 }
 
 Future<String> fetchUserData(String? userId) async {
@@ -41,7 +42,9 @@ class UserData {
   final String userName;
   Map<String, dynamic> asc;
   Map<String, dynamic> des;
+  List<Entry> lis;
   Entry latest;
-  UserData(this.userId, this.userName, this.asc, this.des, this.latest);
+  UserData(
+      this.userId, this.userName, this.asc, this.des, this.lis, this.latest);
 }
 // print(await http.read(Uri.https('example.com', 'foobar.txt')));

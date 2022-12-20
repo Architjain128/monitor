@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_html/flutter_html.dart';
 import 'package:montior/form.dart';
+import 'package:montior/scale.dart';
 import 'package:montior/tile.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:syncfusion_flutter_charts/sparkcharts.dart';
 import 'databaseRequests.dart';
 import 'tile.dart';
 
@@ -17,14 +16,11 @@ class MyChart extends StatefulWidget {
 class MyChartState extends State<MyChart> {
   @override
   Widget build(BuildContext context) {
-    List<Entry> data = [];
-    for (final i in widget.data.asc.values) {
-      data.add(Entry(dateparser(i["date"].toString()), i["sys"].toString(),
-          i["dia"].toString()));
-    }
     late TrackballDisplayMode _mode = TrackballDisplayMode.floatAllPoints;
-    return Column(children: [
+    return SingleChildScrollView(
+        child: Column(children: [
       //Initialize the chart widget
+      MyScale(),
       MyDataTile(data: widget.data.latest, title: "Latest"),
       Container(
         decoration: BoxDecoration(
@@ -35,23 +31,12 @@ class MyChartState extends State<MyChart> {
         padding: EdgeInsets.all(10),
         margin: EdgeInsets.all(10),
         child: SfCartesianChart(
-          // primaryXAxis: CategoryAxis(),
           primaryXAxis: CategoryAxis(
-            // title: AxisTitle(
-            //   text: 'Players',
-            //   textStyle: TextStyle(fontSize: 15),
-            // ),
             title: AxisTitle(text: "Date"),
             axisLine: const AxisLine(width: 1),
-            // labelFormat: '{value}',
             isVisible: false,
           ),
           primaryYAxis: NumericAxis(
-            // title: AxisTitle(
-            //   text: 'Score',
-            //   textStyle: TextStyle(fontSize: 12),
-            // ),
-            // title: AxisTitle(text: "Readings"),
             labelFormat: '{value}',
             axisLine: const AxisLine(width: 1),
             majorTickLines: const MajorTickLines(color: Colors.transparent),
@@ -71,7 +56,7 @@ class MyChartState extends State<MyChart> {
               width: 10,
               borderWidth: 1,
             ),
-            hideDelay: 2000,
+            hideDelay: 1000,
             activationMode: ActivationMode.singleTap,
             tooltipAlignment: ChartAlignment.center,
             tooltipDisplayMode: TrackballDisplayMode.groupAllPoints,
@@ -91,27 +76,23 @@ class MyChartState extends State<MyChart> {
           series: <ChartSeries<Entry, String>>[
             LineSeries<Entry, String>(
               enableTooltip: false,
-              dataSource: data,
+              dataSource: widget.data.lis,
               xValueMapper: (Entry sales, _) => sales.date,
               yValueMapper: (Entry sales, _) => int.parse(sales.sys!),
               name: 'SYS',
               markerSettings: const MarkerSettings(isVisible: true),
-              // Enable data label
-              // dataLabelSettings: DataLabelSettings(isVisible: true),
             ),
             LineSeries<Entry, String>(
               enableTooltip: false,
-              dataSource: data,
+              dataSource: widget.data.lis,
               xValueMapper: (Entry sales, _) => sales.date,
               yValueMapper: (Entry sales, _) => int.parse(sales.dia!),
               name: 'DIA',
               markerSettings: const MarkerSettings(isVisible: true),
-              // Enable data label
-              // dataLabelSettings: DataLabelSettings(isVisible: true),
             ),
           ],
         ),
       ),
-    ]);
+    ]));
   }
 }

@@ -1,5 +1,7 @@
 import 'dart:io';
+import 'package:flutter_html/flutter_html.dart';
 
+import "scale.dart";
 import 'package:flutter/material.dart';
 import 'package:date_time_picker/date_time_picker.dart';
 import 'package:flutter/services.dart';
@@ -29,7 +31,14 @@ class MyCustomFormState extends State<MyCustomForm> {
   @override
   Widget build(BuildContext context) {
     // Build a Form widget using the _formKey created above.
-    return Column(children: [
+    return SingleChildScrollView(
+        child: Column(children: [
+      // Container(
+      //     child: Text(
+      //   "Hello ${widget.data.userName}!",
+      //   style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15),
+      // )),
+      MyScale(),
       MyDataTile(title: "Latest", data: widget.data.latest),
       Container(
         margin: const EdgeInsets.all(10),
@@ -74,7 +83,7 @@ class MyCustomFormState extends State<MyCustomForm> {
                   }
                   return null;
                 },
-                onSaved: (value) {
+                onChanged: (value) {
                   _sys = value;
                 },
               ),
@@ -108,7 +117,7 @@ class MyCustomFormState extends State<MyCustomForm> {
                   }
                   return null;
                 },
-                onSaved: (value) {
+                onChanged: (value) {
                   _dia = value;
                 },
               ),
@@ -135,7 +144,7 @@ class MyCustomFormState extends State<MyCustomForm> {
                 margin: const EdgeInsets.all(4),
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    primary: Colors.black,
+                    primary: Colors.blue,
                     minimumSize: const Size.fromHeight(50), // NEW
                   ),
                   child: const Text(
@@ -162,7 +171,7 @@ class MyCustomFormState extends State<MyCustomForm> {
           ),
         ),
       ),
-    ]);
+    ]));
   }
 }
 

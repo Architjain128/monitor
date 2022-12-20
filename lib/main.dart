@@ -5,9 +5,11 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:montior/databaseRequests.dart';
+import 'package:montior/scale.dart';
 import "form.dart";
-import 'list.dart';
+import 'listwrapper.dart';
 import 'graph.dart';
+import 'tile.dart';
 
 final String appUserId = "0";
 
@@ -71,7 +73,12 @@ class MyMainPageState extends State<MyMainPage> {
             entry = Entry(temp[idx]["date"].toString(),
                 temp[idx]["sys"].toString(), temp[idx]["dia"].toString());
           }
-          UserData _data = UserData(appUserId, userName, asc, des, entry);
+          List<Entry> lis = [];
+          for (final i in asc.values) {
+            lis.add(Entry(dateparser(i["date"].toString()), i["sys"].toString(),
+                i["dia"].toString()));
+          }
+          UserData _data = UserData(appUserId, userName, asc, des, lis, entry);
           return MyHomePage(data: _data, count: update);
         } else {
           return Center(child: CircularProgressIndicator());
@@ -99,7 +106,16 @@ class _MyHomePageState extends State<MyHomePage> {
       length: 3,
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Blood Pressure Monitor'),
+          title: Column(
+            children: [
+              Text('Blood Pressure Monitor'),
+              // Text(
+              //   'Hello ${widget.data.userName}!',
+              //   textAlign: TextAlign.left,
+              //   style: TextStyle(fontSize: 10),
+              // ),
+            ],
+          ),
           actions: [
             IconButton(
               icon: const Icon(Icons.settings),
@@ -111,6 +127,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ],
           bottom: TabBar(
+            onTap: (_) => FocusManager.instance.primaryFocus?.unfocus(),
             tabs: <Widget>[
               Tab(
                 icon: Icon(Icons.home),
@@ -128,7 +145,7 @@ class _MyHomePageState extends State<MyHomePage> {
           children: <Widget>[
             MyCustomForm(data: widget.data, count: widget.count),
             MyChart(data: widget.data),
-            MyList(data: widget.data),
+            MyListW(data: widget.data),
           ],
         ),
       ),
