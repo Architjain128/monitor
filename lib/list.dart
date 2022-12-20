@@ -18,21 +18,6 @@ class MyList extends StatefulWidget {
 class MyListState extends State<MyList> {
   // Create a global key that uniquely identifies the Form widget
   // and allows validation of the form.
-  List<Widget> _generateList(UserData data) {
-    List<Widget> tileList = [];
-    for (final i in data.des.values) {
-      tileList.add(new MyDataTile(
-        data: Entry(
-            i["date"].toString(), i["sys"].toString(), i["dia"].toString()),
-        title: "",
-      ));
-    }
-    print(tileList.length);
-    if (tileList.length == 0) {
-      tileList.add(Container(child: Text("No Entry yet")));
-    }
-    return tileList;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +32,9 @@ class MyListState extends State<MyList> {
                 "No entry yet!",
                 style: TextStyle(fontSize: 25, fontWeight: FontWeight.w600),
               ))
-            : ListView.builder(
+            : ListView.separated(
+                separatorBuilder: (BuildContext context, int index) =>
+                    Divider(height: 2),
                 itemCount: widget.data.des.values.toList().length,
                 itemBuilder: (BuildContext context, int index) {
                   return MyDataTile(

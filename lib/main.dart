@@ -99,56 +99,90 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  // int _selectedIndex = 0;
+
+  // void _onItemTapped(int index) {
+  //   setState(() {
+  //     _selectedIndex = index;
+  //   });
+  // }
+
   @override
   Widget build(BuildContext context) {
     // UserData _data = widget.data;
+    // List<Widget> _widgetOptions = <Widget>[
+    //   MyCustomForm(data: widget.data, count: widget.count),
+    //   MyChart(data: widget.data),
+    //   MyListW(data: widget.data),
+    // ];
     return DefaultTabController(
-      length: 3,
-      child: Scaffold(
-        appBar: AppBar(
-          title: Column(
-            children: [
-              Text('Blood Pressure Monitor'),
-              // Text(
-              //   'Hello ${widget.data.userName}!',
-              //   textAlign: TextAlign.left,
-              //   style: TextStyle(fontSize: 10),
-              // ),
-            ],
-          ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.settings),
-              tooltip: 'Settings',
-              onPressed: () {
-                ScaffoldMessenger.of(context)
-                    .showSnackBar(const SnackBar(content: Text('Setting')));
-              },
+        length: 3,
+        child: Scaffold(
+          appBar: AppBar(
+            title: Column(
+              children: [
+                Text('Blood Pressure Monitor'),
+                // Text(
+                //   'Hello ${widget.data.userName}!',
+                //   textAlign: TextAlign.left,
+                //   style: TextStyle(fontSize: 10),
+                // ),
+              ],
             ),
-          ],
-          bottom: TabBar(
-            onTap: (_) => FocusManager.instance.primaryFocus?.unfocus(),
-            tabs: <Widget>[
-              Tab(
-                icon: Icon(Icons.home),
-              ),
-              Tab(
-                icon: Icon(Icons.auto_graph),
-              ),
-              Tab(
-                icon: Icon(Icons.list),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.settings),
+                tooltip: 'Settings',
+                onPressed: () {
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(const SnackBar(content: Text('Setting')));
+                },
               ),
             ],
+            bottom: TabBar(
+              onTap: (_) => FocusManager.instance.primaryFocus?.unfocus(),
+              tabs: <Widget>[
+                Tab(
+                  icon: Icon(Icons.home),
+                ),
+                Tab(
+                  icon: Icon(Icons.auto_graph),
+                ),
+                Tab(
+                  icon: Icon(Icons.list),
+                ),
+              ],
+            ),
           ),
-        ),
-        body: TabBarView(
-          children: <Widget>[
-            MyCustomForm(data: widget.data, count: widget.count),
-            MyChart(data: widget.data),
-            MyListW(data: widget.data),
-          ],
-        ),
-      ),
-    );
+          body: TabBarView(
+            children: <Widget>[
+              MyCustomForm(data: widget.data, count: widget.count),
+              MyChart(data: widget.data),
+              MyListW(data: widget.data),
+            ],
+          ),
+          // body: Center(
+          //   child: _widgetOptions.elementAt(_selectedIndex),
+          // ),
+          // bottomNavigationBar: BottomNavigationBar(
+          //   items: const <BottomNavigationBarItem>[
+          //     BottomNavigationBarItem(
+          //       icon: Icon(Icons.home),
+          //       label: 'Home',
+          //     ),
+          //     BottomNavigationBarItem(
+          //       icon: Icon(Icons.business),
+          //       label: 'Business',
+          //     ),
+          //     BottomNavigationBarItem(
+          //       icon: Icon(Icons.school),
+          //       label: 'School',
+          //     ),
+          //   ],
+          //   currentIndex: _selectedIndex,
+          //   selectedItemColor: Colors.amber[800],
+          //   onTap: _onItemTapped,
+          // ),
+        ));
   }
 }

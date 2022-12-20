@@ -56,9 +56,10 @@ class MyCustomFormState extends State<MyCustomForm> {
             children: <Widget>[
               TextFormField(
                 style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 2),
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 2,
+                ),
                 decoration: const InputDecoration(
                   prefixIcon: Padding(
                       padding: EdgeInsets.all(15),

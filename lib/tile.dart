@@ -65,9 +65,7 @@ class MyDataTileState extends State<MyDataTile> {
     // Build a Form widget using the _formKey created above.
     return Container(
       // margin: const EdgeInsets.all(10),
-      margin: widget.title == "Lastest"
-          ? EdgeInsets.all(10)
-          : EdgeInsets.only(left: 10, top: 5, bottom: 5, right: 20),
+      margin: widget.title == "Latest" ? EdgeInsets.all(10) : null,
       // padding: const EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 10),
       alignment: Alignment.center,
       child: Column(children: [
@@ -141,16 +139,18 @@ class MyDataTileState extends State<MyDataTile> {
       ]),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: widget.title != "Latest"
+        border: widget.title == "Latest"
             ? Border.all(
-                color: Colors.black,
-                width: 2.0,
+                color: Colors.grey,
+                width: 1.0,
               )
             : Border.all(
                 color: Colors.grey,
-                width: 1.0,
+                width: 0.5,
               ),
-        borderRadius: BorderRadius.circular(10.0),
+
+        borderRadius:
+            widget.title == "Latest" ? BorderRadius.circular(10.0) : null,
         // gradient: LinearGradient(
         // begin: Alignment.topCenter, colors: [Colors.white, Colors.white30]),
         boxShadow: [
